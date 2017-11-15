@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Владимир Хребтов](https://up.htmlacademy.ru/javascript/11/user/118371).
-* Наставник: `Неизвестно`.
+* Наставник: [Максим Нестеренко]https://htmlacademy.ru/profile/id505057.
 
 ---
 
