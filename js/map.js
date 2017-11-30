@@ -1,6 +1,14 @@
 'use strict';
 
-function getInitialPosts() {
+var map = document.querySelector('.map');
+var template = document.querySelector('template');
+var btnTemplate = template.content.querySelector('.map__pin');
+var articleTemplate = template.content.querySelector('.map__card');
+var pinMap = document.querySelector('.map__pins');
+
+map.classList.remove('map--faded');
+
+function generateInitialData(objectsAmount) {
   var titles = [
     'Большая уютная квартира',
     'Маленькая неуютная квартира',
@@ -10,8 +18,8 @@ function getInitialPosts() {
     'Некрасивый негостеприимный домик',
     'Уютное бунгало далеко от моря',
     'Неуютное бунгало по колено в воде'
-  ].sort(compareRandom);
-  var users = [1, 2, 3, 4, 5, 6, 7, 8].sort(compareRandom);
+  ];
+  var users = [1, 2, 3, 4, 5, 6, 7, 8];
   var types = ['flat', 'house', 'bungalo'];
   var times = ['12:00', '13:00', '14:00'];
   var features = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
@@ -20,21 +28,21 @@ function getInitialPosts() {
   var guestRange = {min: 1, max: 4};
   var xRange = {min: 300, max: 900};
   var yRange = {min: 100, max: 500};
-  var posts = [];
+  var data = [];
   var x = 0;
   var y = 0;
 
-  for (var i = 0; i < titles.length; i++) {
+  for (var i = 0; i < objectsAmount; i++) {
     x = getRandomValue(xRange.max, xRange.min);
     y = getRandomValue(yRange.max, yRange.min);
-    posts.push({
+    data.push({
       author: {
         avatar: 'img/avatars/user' + suplementWithZero(users[i], 2) + '.png'
       },
       offer: {
         title: titles[i],
         address: x + ', ' + y,
-        price: getRandomValue(priceRange.max, priceRange.min, -3),
+        price: getRandomValue(priceRange.max, priceRange.min),
         type: getRandomArrayItem(types),
         rooms: getRandomValue(roomsRange.max, roomsRange.min),
         guests: getRandomValue(guestRange.max, guestRange.min),
@@ -51,23 +59,19 @@ function getInitialPosts() {
     });
   }
 
-  return posts;
+  return data;
 }
 
 function createMapPin(post) {
-  var pinSize = 40;
-  var btn = document.createElement('button');
-  var img = document.createElement('img');
-  btn.style.left = (post.location.x - pinSize / 2) + 'px';
-  btn.style.top = (post.location.y - pinSize) + 'px';
-  btn.className = 'map__pin';
-  img.src = post.author.avatar;
-  img.width = pinSize;
-  img.height = pinSize;
-  img.draggable = false;
-  btn.appendChild(img);
+  var btnTemplateClone = btnTemplate.cloneNode(true);
+  var templateHeight = window.getComputedStyle(btnTemplateClone).getPropertyValue('height');
+  var templatePseudoElemHeight = window.getComputedStyle(btnTemplateClone, ':after').getPropertyValue('height');
 
-  return btn;
+  btnTemplateClone.style.left = post.location.x + 'px';
+  btnTemplateClone.style.top = post.location.y - templateHeight / 2 - templatePseudoElemHeight + 'px';
+  btnTemplateClone.querySelector('img').src = post.author.avatar;
+
+  return btnTemplateClone;
 }
 
 function renderMapPins(posts) {
@@ -76,12 +80,11 @@ function renderMapPins(posts) {
   for (var i = 0; i < posts.length; i++) {
     fragment.appendChild(createMapPin(posts[i]));
   }
-  document.querySelector('.map__pins').appendChild(fragment);
+  pinMap.appendChild(fragment);
 }
 
 function renderMapPopup(post) {
-  var template = document.querySelector('template').content.querySelector('article.map__card');
-  var popupTemplate = template.cloneNode(true);
+  var popupTemplate = articleTemplate.cloneNode(true);
   var dictionary = {
     'flat': 'Квартира',
     'bungalo': 'Бунгало',
@@ -90,6 +93,7 @@ function renderMapPopup(post) {
   var postType = popupTemplate.querySelector('h4');
   var features = popupTemplate.querySelector('.popup__features');
   var featuresFragment = document.createDocumentFragment();
+
   popupTemplate.querySelector('.popup__avatar').src = post.author.avatar;
   popupTemplate.querySelector('h3').textContent = post.offer.title;
   popupTemplate.querySelector('small').textContent = post.offer.address;
@@ -98,6 +102,7 @@ function renderMapPopup(post) {
   postType.nextElementSibling.textContent = post.offer.rooms + ' комнаты для ' + post.offer.guests + ' гостей';
   postType.nextElementSibling.nextElementSibling.textContent = 'заезд после ' + post.offer.checkin + ' , выезд до ' + post.offer.checkout;
   popupTemplate.querySelector('.popup__features').innerHTML = '';
+
   for (var i = 0; i < post.offer.features.length; i++) {
     var li = document.createElement('li');
     li.className = 'feature  feature--' + post.offer.features[i];
@@ -106,37 +111,27 @@ function renderMapPopup(post) {
   features.appendChild(featuresFragment);
   features.nextElementSibling.textContent = post.offer.description;
 
-  document.querySelector('.map').appendChild(popupTemplate);
+  map.appendChild(popupTemplate);
 }
 
 function renderMap() {
-  var posts = getInitialPosts();
-  renderMapPins(posts);
-  renderMapPopup(posts[0]);
+  renderMapPins(generateInitialData(8));
+  renderMapPopup(generateInitialData(8)[0]);
 }
 
-renderMap();
-
-function getRandomValue(max, min, precision) {
-  precision = precision || 0;
-  min = min || 0;
-  var random = Math.random() * (max - min) + min;
-
-  return Math.round(random * Math.pow(10, precision)) / Math.pow(10, precision);
+function getRandomValue(max, min) {
+  return Math.floor(Math.random() * ((max + 1) - min) + min);
 }
 
 function getRandomArraySubset(arr) {
-  var subsetLength = getRandomValue(arr.length - 1);
+  var arrClone = arr.slice();
+  var subsetLength = getRandomValue(arr.length - 1, 0);
   var subset = [];
-  var item = null;
+  var item;
 
   for (var i = 0; i < subsetLength; i++) {
-    item = arr[getRandomValue(arr.length - 1)];
-    if (subset.indexOf(item) + 1) {
-      i--;
-    } else {
-      subset.push(item);
-    }
+    item = arrClone.splice(getRandomValue(arrClone.length - 1, 0), 1)
+    subset.push(item[0]);
   }
 
   return subset;
@@ -144,17 +139,11 @@ function getRandomArraySubset(arr) {
 
 function getRandomArrayItem(arr) {
 
-  return arr[getRandomValue(arr.length - 1)];
+  return arr[getRandomValue(arr.length - 1, 0)];
 }
 
-function compareRandom() {
-  return Math.random() - 0.5;
+function suplementWithZero(value) {
+  return value < 10 ? '0' + value: value;
 }
 
-function suplementWithZero(value, precision) {
-  var result = (value || '').toString();
-  for (var i = value.toString().length; i < precision; i++) {
-    result = '0' + result;
-  }
-  return result;
-}
+renderMap();
