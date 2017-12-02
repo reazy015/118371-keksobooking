@@ -5,10 +5,19 @@ var template = document.querySelector('template');
 var btnTemplate = template.content.querySelector('.map__pin');
 var articleTemplate = template.content.querySelector('.map__card');
 var pinMap = document.querySelector('.map__pins');
+var mainPin = document.querySelector('.map__pin--main');
+var form = document.querySelector('.notice__form');
+var formFieldsets = form.querySelectorAll('fieldset');
+var intitialDataArray = generateInitialDataArray(8);
+var popupCloseBtn = document.querySelector('.popup__close');
+var allMapPins;
+var mapPopup;
+var keyCodes = {
+  enter: 13,
+  esc: 27
+};
 
-map.classList.remove('map--faded');
-
-function generateInitialData(objectsAmount) {
+function generateInitialDataArray(objectsAmount) {
   var titles = [
     'Большая уютная квартира',
     'Маленькая неуютная квартира',
@@ -19,7 +28,6 @@ function generateInitialData(objectsAmount) {
     'Уютное бунгало далеко от моря',
     'Неуютное бунгало по колено в воде'
   ];
-  var users = [1, 2, 3, 4, 5, 6, 7, 8];
   var types = ['flat', 'house', 'bungalo'];
   var times = ['12:00', '13:00', '14:00'];
   var features = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
@@ -37,7 +45,7 @@ function generateInitialData(objectsAmount) {
     y = getRandomValue(yRange.max, yRange.min);
     data.push({
       author: {
-        avatar: 'img/avatars/user' + suplementWithZero(users[i], 2) + '.png'
+        avatar: 'img/avatars/user' + suplementWithZero(i) + '.png'
       },
       offer: {
         title: titles[i],
@@ -64,12 +72,24 @@ function generateInitialData(objectsAmount) {
 
 function createMapPin(post) {
   var btnTemplateClone = btnTemplate.cloneNode(true);
-  var templateHeight = window.getComputedStyle(btnTemplateClone).getPropertyValue('height');
-  var templatePseudoElemHeight = window.getComputedStyle(btnTemplateClone, ':after').getPropertyValue('height');
+  var templateHeight = parseInt(getComputedStyle(mainPin).getPropertyValue('height'));
+  var templatePseudoElemHeight = parseInt(getComputedStyle(mainPin, ':after').getPropertyValue('border-top-width'));
 
   btnTemplateClone.style.left = post.location.x + 'px';
   btnTemplateClone.style.top = post.location.y - templateHeight / 2 - templatePseudoElemHeight + 'px';
   btnTemplateClone.querySelector('img').src = post.author.avatar;
+
+  btnTemplateClone.addEventListener('click', function(e){
+    renderMapPopup(post);
+    activateCurrentMapPin(e);
+  });
+
+  btnTemplateClone.addEventListener('keydown', function(e){
+    if (e.keyCode === keyCodes.esc) {
+      deactivateActiveMapPin();
+      openClosePopup('none');
+    }
+  });
 
   return btnTemplateClone;
 }
@@ -111,39 +131,89 @@ function renderMapPopup(post) {
   features.appendChild(featuresFragment);
   features.nextElementSibling.textContent = post.offer.description;
 
+  popupTemplate.addEventListener('click', function(e){
+    if (e.target.matches('.popup__close')) {
+      deactivateActiveMapPin();
+      openClosePopup('none');
+    }
+  })
+
   map.appendChild(popupTemplate);
 }
 
-function renderMap() {
-  renderMapPins(generateInitialData(8));
-  renderMapPopup(generateInitialData(8)[0]);
+function renderMap(dataArray) {
+  renderMapPins(dataArray);
 }
 
 function getRandomValue(max, min) {
   return Math.floor(Math.random() * ((max + 1) - min) + min);
 }
 
-function getRandomArraySubset(arr) {
-  var arrClone = arr.slice();
-  var subsetLength = getRandomValue(arr.length - 1, 0);
+function getRandomArraySubset(array) {
+  var arrayClone = array.slice();
+  var subsetLength = getRandomValue(array.length - 1, 0);
   var subset = [];
   var item;
 
   for (var i = 0; i < subsetLength; i++) {
-    item = arrClone.splice(getRandomValue(arrClone.length - 1, 0), 1)
+    item = arrayClone.splice(getRandomValue(arrayClone.length - 1, 0), 1)
     subset.push(item[0]);
   }
-
   return subset;
 }
 
-function getRandomArrayItem(arr) {
-
-  return arr[getRandomValue(arr.length - 1, 0)];
+function getRandomArrayItem(array) {
+  return array[getRandomValue(array.length - 1, 0)];
 }
 
 function suplementWithZero(value) {
+  value = value == 0 ? 1 : value;
   return value < 10 ? '0' + value: value;
 }
 
-renderMap();
+// Активируем/деактивируем поле
+function setFormFieldsetsDisActive(fieldsetArray, status){
+  fieldsetArray.forEach(function(fieldset) {
+    fieldset.disabled = status
+  });
+}
+
+// Активируем карту
+function activateMap() {
+  renderMap(intitialDataArray);
+  openClosePopup('none');
+  setFormFieldsetsDisActive(formFieldsets, false);
+  map.classList.remove('map--faded');
+  form.classList.remove('notice__form--disabled');
+  mainPin.removeEventListener('mouseup', activateMap);
+}
+
+// Деактивируем активные указатели на карте
+function deactivateActiveMapPin(){
+  allMapPins = document.querySelectorAll('.map__pin');
+
+  allMapPins.forEach(function(pin){
+    if (pin.classList.contains('map__pin--active')) {
+      pin.classList.remove('map__pin--active');
+    }
+  });
+}
+// Открываем/закрываем попап изменяя свойство элемента display  с none на block
+function openClosePopup(status){
+  mapPopup = document.querySelectorAll('.popup');
+  mapPopup.forEach(function(item){
+    item.style.display = status;
+  })
+}
+// Активируем указатель на карте
+function activateCurrentMapPin(e) {
+  if (e.target.matches('.map__pin') || e.target.matches('.map__pin img')) {
+    deactivateActiveMapPin();
+    e.target.closest('.map__pin').classList.add('map__pin--active');
+    openClosePopup('block');
+  }
+}
+
+setFormFieldsetsDisActive(formFieldsets, true);
+mainPin.addEventListener('mouseup', activateMap);
+map.addEventListener('click', activateCurrentMapPin);
