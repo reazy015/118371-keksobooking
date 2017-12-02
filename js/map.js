@@ -62,8 +62,8 @@ function generateInitialDataArray(objectsAmount) {
 
 function createMapPin(post) {
   var btnTemplateClone = btnTemplate.cloneNode(true);
-  var templateHeight = window.getComputedStyle(btnTemplateClone).getPropertyValue('height');
-  var templatePseudoElemHeight = window.getComputedStyle(btnTemplateClone, ':after').getPropertyValue('height');
+  var templateHeight = getComputedStyle(mainPin).getPropertyValue('height');
+  var templatePseudoElemHeight = getComputedStyle(mainPin, ':after').getPropertyValue('height');
 
   btnTemplateClone.style.left = post.location.x + 'px';
   btnTemplateClone.style.top = post.location.y - templateHeight / 2 - templatePseudoElemHeight + 'px';
