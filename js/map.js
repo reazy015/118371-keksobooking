@@ -5,10 +5,9 @@ var template = document.querySelector('template');
 var btnTemplate = template.content.querySelector('.map__pin');
 var articleTemplate = template.content.querySelector('.map__card');
 var pinMap = document.querySelector('.map__pins');
+var mainPin = document.querySelector('.map__pin--main');
 
-map.classList.remove('map--faded');
-
-function generateInitialData(objectsAmount) {
+function generateInitialDataArray(objectsAmount) {
   var titles = [
     'Большая уютная квартира',
     'Маленькая неуютная квартира',
@@ -19,7 +18,6 @@ function generateInitialData(objectsAmount) {
     'Уютное бунгало далеко от моря',
     'Неуютное бунгало по колено в воде'
   ];
-  var users = [1, 2, 3, 4, 5, 6, 7, 8];
   var types = ['flat', 'house', 'bungalo'];
   var times = ['12:00', '13:00', '14:00'];
   var features = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
@@ -37,7 +35,7 @@ function generateInitialData(objectsAmount) {
     y = getRandomValue(yRange.max, yRange.min);
     data.push({
       author: {
-        avatar: 'img/avatars/user' + suplementWithZero(users[i], 2) + '.png'
+        avatar: 'img/avatars/user' + suplementWithZero(i) + '.png'
       },
       offer: {
         title: titles[i],
@@ -115,35 +113,35 @@ function renderMapPopup(post) {
 }
 
 function renderMap() {
-  renderMapPins(generateInitialData(8));
-  renderMapPopup(generateInitialData(8)[0]);
+  renderMapPins(generateInitialDataArray(8));
+  renderMapPopup(generateInitialDataArray(8)[0]);
 }
 
 function getRandomValue(max, min) {
   return Math.floor(Math.random() * ((max + 1) - min) + min);
 }
 
-function getRandomArraySubset(arr) {
-  var arrClone = arr.slice();
-  var subsetLength = getRandomValue(arr.length - 1, 0);
+function getRandomArraySubset(array) {
+  var arrayClone = array.slice();
+  var subsetLength = getRandomValue(array.length - 1, 0);
   var subset = [];
   var item;
 
   for (var i = 0; i < subsetLength; i++) {
-    item = arrClone.splice(getRandomValue(arrClone.length - 1, 0), 1)
+    item = arrayClone.splice(getRandomValue(arrayClone.length - 1, 0), 1)
     subset.push(item[0]);
   }
-
   return subset;
 }
 
-function getRandomArrayItem(arr) {
-
-  return arr[getRandomValue(arr.length - 1, 0)];
+function getRandomArrayItem(array) {
+  return array[getRandomValue(array.length - 1, 0)];
 }
 
 function suplementWithZero(value) {
+  value = value == 0 ? 1 : value;
   return value < 10 ? '0' + value: value;
 }
 
+map.classList.remove('map--faded');
 renderMap();
