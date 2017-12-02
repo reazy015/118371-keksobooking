@@ -9,7 +9,6 @@ var mainPin = document.querySelector('.map__pin--main');
 var form = document.querySelector('.notice__form');
 var formFieldsets = form.querySelectorAll('fieldset');
 var intitialDataArray = generateInitialDataArray(8);
-var popupCloseBtn = document.querySelector('.popup__close');
 var allMapPins;
 var mapPopup;
 var keyCodes = {
@@ -72,19 +71,19 @@ function generateInitialDataArray(objectsAmount) {
 
 function createMapPin(post) {
   var btnTemplateClone = btnTemplate.cloneNode(true);
-  var templateHeight = parseInt(getComputedStyle(mainPin).getPropertyValue('height'));
-  var templatePseudoElemHeight = parseInt(getComputedStyle(mainPin, ':after').getPropertyValue('border-top-width'));
+  var templateHeight = parseInt(getComputedStyle(mainPin).getPropertyValue('height'), 10);
+  var templatePseudoElemHeight = parseInt(getComputedStyle(mainPin, ':after').getPropertyValue('border-top-width'), 10);
 
   btnTemplateClone.style.left = post.location.x + 'px';
   btnTemplateClone.style.top = post.location.y - templateHeight / 2 - templatePseudoElemHeight + 'px';
   btnTemplateClone.querySelector('img').src = post.author.avatar;
 
-  btnTemplateClone.addEventListener('click', function(e){
+  btnTemplateClone.addEventListener('click', function (e) {
     renderMapPopup(post);
     activateCurrentMapPin(e);
   });
 
-  btnTemplateClone.addEventListener('keydown', function(e){
+  btnTemplateClone.addEventListener('keydown', function (e) {
     if (e.keyCode === keyCodes.esc) {
       deactivateActiveMapPin();
       openClosePopup('none');
@@ -131,12 +130,12 @@ function renderMapPopup(post) {
   features.appendChild(featuresFragment);
   features.nextElementSibling.textContent = post.offer.description;
 
-  popupTemplate.addEventListener('click', function(e){
+  popupTemplate.addEventListener('click', function (e) {
     if (e.target.matches('.popup__close')) {
       deactivateActiveMapPin();
       openClosePopup('none');
     }
-  })
+  });
 
   map.appendChild(popupTemplate);
 }
@@ -156,7 +155,7 @@ function getRandomArraySubset(array) {
   var item;
 
   for (var i = 0; i < subsetLength; i++) {
-    item = arrayClone.splice(getRandomValue(arrayClone.length - 1, 0), 1)
+    item = arrayClone.splice(getRandomValue(arrayClone.length - 1, 0), 1);
     subset.push(item[0]);
   }
   return subset;
@@ -167,14 +166,14 @@ function getRandomArrayItem(array) {
 }
 
 function suplementWithZero(value) {
-  value = value == 0 ? 1 : value;
-  return value < 10 ? '0' + value: value;
+  value = value === 0 ? 1 : value;
+  return value < 10 ? '0' + value : value;
 }
 
 // Активируем/деактивируем поле
-function setFormFieldsetsDisActive(fieldsetArray, status){
-  fieldsetArray.forEach(function(fieldset) {
-    fieldset.disabled = status
+function setFormFieldsetsDisActive(fieldsetArray, status) {
+  fieldsetArray.forEach(function (fieldset) {
+    fieldset.disabled = status;
   });
 }
 
@@ -189,21 +188,21 @@ function activateMap() {
 }
 
 // Деактивируем активные указатели на карте
-function deactivateActiveMapPin(){
+function deactivateActiveMapPin() {
   allMapPins = document.querySelectorAll('.map__pin');
 
-  allMapPins.forEach(function(pin){
+  allMapPins.forEach(function (pin) {
     if (pin.classList.contains('map__pin--active')) {
       pin.classList.remove('map__pin--active');
     }
   });
 }
 // Открываем/закрываем попап изменяя свойство элемента display  с none на block
-function openClosePopup(status){
+function openClosePopup(status) {
   mapPopup = document.querySelectorAll('.popup');
-  mapPopup.forEach(function(item){
+  mapPopup.forEach(function (item) {
     item.style.display = status;
-  })
+  });
 }
 // Активируем указатель на карте
 function activateCurrentMapPin(e) {
