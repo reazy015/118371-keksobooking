@@ -1,6 +1,6 @@
 'use strict';
 
-var objectsQuantaty = 8;
+var objectsQuantaty = 9;
 var map = document.querySelector('.map');
 var template = document.querySelector('template');
 var btnTemplate = template.content.querySelector('.map__pin');
@@ -10,9 +10,14 @@ var mainPin = document.querySelector('.map__pin--main');
 var form = document.querySelector('.notice__form');
 var formFieldsets = form.querySelectorAll('fieldset');
 var intitialDataArray = generateInitialDataArray(objectsQuantaty);
-// var titleInput = form.querySelector('#title');
-// var addressInput = form.querySelector('#address');
+var titleInput = form.querySelector('#title');
+var addressInput = form.querySelector('#address');
+var priceInput = form.querySelector('#price');
+var timeinInput = form.querySelector('#timein');
+var timeoutInput = form.querySelector('#timeout');
 var mapFiltersContainer = map.querySelector('.map__filters-container');
+var titleMinLength = 30;
+var titleMaxLength = 100;
 var allMapPins;
 var keyCodes = {
   enter: 13,
@@ -42,7 +47,7 @@ function generateInitialDataArray(objectsAmount) {
   var x = 0;
   var y = 0;
 
-  for (var i = 0; i < objectsAmount; i++) {
+  for (var i = 1; i < objectsAmount; i++) {
     x = getRandomValue(xRange.max, xRange.min);
     y = getRandomValue(yRange.max, yRange.min);
     data.push({
@@ -50,7 +55,7 @@ function generateInitialDataArray(objectsAmount) {
         avatar: 'img/avatars/user' + supplementNumberWithZero(i) + '.png'
       },
       offer: {
-        title: titles[i],
+        title: getRandomArrayItem(titles),
         address: x + ', ' + y,
         price: getRandomValue(priceRange.max, priceRange.min),
         type: getRandomArrayItem(types),
@@ -137,7 +142,9 @@ function renderMapPopup(post) {
   features.nextElementSibling.textContent = post.offer.description;
 
   popupTemplate.addEventListener('click', function (e) {
-    if (e.target.classList.contains('.popup__close')) {
+    var currentPopup = e.target.parentNode;
+    if (e.target.classList.contains('popup__close')) {
+      map.removeChild(currentPopup);
       deactivateActiveMapPin();
     }
   });
@@ -167,7 +174,6 @@ function getRandomArrayItem(array) {
 }
 
 function supplementNumberWithZero(value) {
-  value = value === 0 ? 1 : value;
   return value < 10 ? '0' + value : value;
 }
 
@@ -196,21 +202,52 @@ function deactivateActiveMapPin() {
 }
 
 function activateCurrentMapPin(e) {
-  if (e.target.classList.contains('.map__pin') || e.target.classList.contains('.map__pin img')) {
     deactivateActiveMapPin();
     e.target.closest('.map__pin').classList.add('map__pin--active');
-  }
 }
 
 toggleFromDisability(formFieldsets, true);
 mainPin.addEventListener('mouseup', activateMap);
-map.addEventListener('click', activateCurrentMapPin);
 
+form.setAttribute('action', 'https://js.dump.academy/keksobooking');
+addressInput.setAttribute('readonly', true);
+addressInput.setAttribute('required', true);
+titleInput.setAttribute('required', true);
+titleInput.setAttribute('minlength', titleMinLength);
+titleInput.setAttribute('maxlength', titleMaxLength);
+priceInput.setAttribute('min', 0);
+priceInput.setAttribute('max', 1000000);
+priceInput.setAttribute('required', true);
+priceInput.setAttribute('type', 'number');
 
-// titleInput.addEventListener('invalid', function (e) {
-//   if (titleInput.validity.valueMissing) {
-//     titleInput.setCustomValidity('Обязательное поле для ввода');
-//   } else if (titleInput.validity.tooShort) {
-//     titleInput.setCustomValidity('Не менее 2 символов');
-//   }
-// });
+addressInput.addEventListener('invalid', function () {
+  return addressInput.validity.valueMissing == true ? addressInput.setCustomValidity('Поле обязательное для заполнения') : addressInput.setCustomValidity('');
+});
+
+titleInput.addEventListener('invalid', function () {
+  if (titleInput.validity.valueMissing) {
+    titleInput.setCustomValidity('Обязательно поле для заполнения');
+  } else if (titleInput.validity.tooShort) {
+    titleInput.setCustomValidity('Поле должно быть не менее ' + titleMinLength + ' символов');
+  } else if (titleInput.validity.tooLong) {
+    titleInput.setCustomValidity('Поле должео быть не более ' + titleMaxLength + ' символов');
+  } else {
+    titleInput.setCustomValidity('');
+  }
+});
+
+priceInput.addEventListener('invalid', function () {
+  if (priceInput.validity.valueMissing) {
+    priceInput.setCustomValidity('Обязательное поле для заполнения');
+  } else {
+    priceInput.setCustomValidity('');
+  }
+});
+
+timeinInput.addEventListener('change', function () {
+  timeoutInput.selectedIndex = timeinInput.selectedIndex;
+});
+
+timeoutInput.addEventListener('change', function () {
+  timeinInput.selectedIndex = timeoutInput.selectedIndex;
+});
