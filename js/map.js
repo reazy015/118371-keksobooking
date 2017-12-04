@@ -8,6 +8,7 @@ var articleTemplate = template.content.querySelector('.map__card');
 var pinMap = document.querySelector('.map__pins');
 var mainPin = document.querySelector('.map__pin--main');
 var form = document.querySelector('.notice__form');
+var formSubmitBtn = form.querySelector('.form__submit');
 var formFieldsets = form.querySelectorAll('fieldset');
 var intitialDataArray = generateInitialDataArray(objectsQuantaty);
 var titleInput = form.querySelector('#title');
@@ -215,13 +216,13 @@ mainPin.addEventListener('mouseup', activateMap);
 form.setAttribute('action', 'https://js.dump.academy/keksobooking');
 form.setAttribute('method', 'post');
 addressInput.setAttribute('readonly', true);
-addressInput.setAttribute('required', true);
-titleInput.setAttribute('required', true);
+addressInput.setAttribute('required', '');
+titleInput.setAttribute('required', '');
 titleInput.setAttribute('minlength', titleMinLength);
 titleInput.setAttribute('maxlength', titleMaxLength);
 priceInput.setAttribute('min', 0);
 priceInput.setAttribute('max', 1000000);
-priceInput.setAttribute('required', true);
+priceInput.setAttribute('required', '');
 priceInput.setAttribute('type', 'number');
 
 addressInput.addEventListener('invalid', function () {
@@ -303,3 +304,16 @@ roomNumber.addEventListener('change', function () {
       roomCapacity.value = '3';
   }
 });
+
+// formSubmitBtn.addEventListener('click', function (e) {
+//   var formFields = form.elements;
+//
+//   for (var i = 0; i < formFields.length; i++) {
+//     if (!formFields[i].validity.valid) {
+//       formFields[i].style.boxShadow = '0 0 5px 2px red';
+//       e.preventDefault()
+//     } else {
+//       formFields[i].style.boxShadow = '';
+//     }
+//   }
+// });
