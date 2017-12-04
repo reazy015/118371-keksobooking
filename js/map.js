@@ -15,6 +15,9 @@ var addressInput = form.querySelector('#address');
 var priceInput = form.querySelector('#price');
 var timeinInput = form.querySelector('#timein');
 var timeoutInput = form.querySelector('#timeout');
+var houseType = form.querySelector('#type');
+var roomNumber = form.querySelector('#room_number');
+var roomCapacity = form.querySelector('#capacity');
 var mapFiltersContainer = map.querySelector('.map__filters-container');
 var titleMinLength = 30;
 var titleMaxLength = 100;
@@ -202,14 +205,15 @@ function deactivateActiveMapPin() {
 }
 
 function activateCurrentMapPin(e) {
-    deactivateActiveMapPin();
-    e.target.closest('.map__pin').classList.add('map__pin--active');
+  deactivateActiveMapPin();
+  e.target.closest('.map__pin').classList.add('map__pin--active');
 }
 
 toggleFromDisability(formFieldsets, true);
 mainPin.addEventListener('mouseup', activateMap);
 
 form.setAttribute('action', 'https://js.dump.academy/keksobooking');
+form.setAttribute('method', 'post');
 addressInput.setAttribute('readonly', true);
 addressInput.setAttribute('required', true);
 titleInput.setAttribute('required', true);
@@ -221,7 +225,7 @@ priceInput.setAttribute('required', true);
 priceInput.setAttribute('type', 'number');
 
 addressInput.addEventListener('invalid', function () {
-  return addressInput.validity.valueMissing == true ? addressInput.setCustomValidity('Поле обязательное для заполнения') : addressInput.setCustomValidity('');
+  return addressInput.validity.valueMissing === true ? addressInput.setCustomValidity('Поле обязательное для заполнения') : addressInput.setCustomValidity('');
 });
 
 titleInput.addEventListener('invalid', function () {
@@ -239,6 +243,12 @@ titleInput.addEventListener('invalid', function () {
 priceInput.addEventListener('invalid', function () {
   if (priceInput.validity.valueMissing) {
     priceInput.setCustomValidity('Обязательное поле для заполнения');
+  } else if (priceInput.validity.rangeUnderflow) {
+    priceInput.setCustomValidity('Значение должно быть не менее ' + priceInput.min);
+    priceInput.value = priceInput.min;
+  } else if (priceInput.validity.rangeOverflow) {
+    priceInput.setCustomValidity('Значение должно быть не более ' + priceInput.max);
+    priceInput.value = priceInput.max;
   } else {
     priceInput.setCustomValidity('');
   }
@@ -250,4 +260,46 @@ timeinInput.addEventListener('change', function () {
 
 timeoutInput.addEventListener('change', function () {
   timeinInput.selectedIndex = timeoutInput.selectedIndex;
+});
+
+houseType.addEventListener('change', function () {
+  switch (houseType.value) {
+    case 'bungalo':
+      priceInput.setAttribute('min', 0);
+      break;
+    case 'flat':
+      priceInput.setAttribute('min', 1000);
+      break;
+    case 'house':
+      priceInput.setAttribute('min', 5000);
+      break;
+    case 'palace':
+      priceInput.setAttribute('min', 10000);
+      break;
+    default:
+      priceInput.setAttribute('min', 1000);
+  }
+});
+
+function syncRoomNumbersToCapacity() {
+  roomCapacity.value = roomNumber.value;
+}
+
+roomNumber.addEventListener('change', function () {
+  switch (roomNumber.value) {
+    case '1':
+      syncRoomNumbersToCapacity();
+      break;
+    case '2':
+      syncRoomNumbersToCapacity();
+      break;
+    case '3':
+      syncRoomNumbersToCapacity();
+      break;
+    case '100':
+      roomCapacity.value = '0';
+      break;
+    default:
+      roomCapacity.value = '3';
+  }
 });
