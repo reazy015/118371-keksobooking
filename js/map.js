@@ -305,15 +305,15 @@ roomNumber.addEventListener('change', function () {
   }
 });
 
-// formSubmitBtn.addEventListener('click', function (e) {
-//   var formFields = form.elements;
-//
-//   for (var i = 0; i < formFields.length; i++) {
-//     if (!formFields[i].validity.valid) {
-//       formFields[i].style.boxShadow = '0 0 5px 2px red';
-//       e.preventDefault()
-//     } else {
-//       formFields[i].style.boxShadow = '';
-//     }
-//   }
-// });
+formSubmitBtn.addEventListener('click', function (e) {
+  var formFields = form.elements;
+
+  for (var i = 0; i < formFields.length; i++) {
+    if (!formFields[i].validity.valid) {
+      formFields[i].style.boxShadow = '0 0 5px 2px red';
+      e.preventDefault()
+    } else {
+      formFields[i].style.boxShadow = '';
+    }
+  }
+});
