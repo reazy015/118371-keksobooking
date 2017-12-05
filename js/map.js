@@ -57,7 +57,7 @@ function generateInitialDataArray(objectsAmount) {
         avatar: 'img/avatars/user' + supplementNumberWithZero(i) + '.png'
       },
       offer: {
-        title: titles[i-1],
+        title: titles[i - 1],
         address: x + ', ' + y,
         price: getRandomValue(priceRange.max, priceRange.min),
         type: getRandomArrayItem(types),
@@ -148,6 +148,14 @@ function renderMapPopup(post) {
   popupTemplate.addEventListener('click', function (evt) {
     var currentPopup = evt.target.parentNode;
     if (evt.target.classList.contains('popup__close')) {
+      map.removeChild(currentPopup);
+      deactivateActiveMapPin();
+    }
+  });
+
+  popupTemplate.addEventListener('keydown', function (evt) {
+    var currentPopup = evt.target.parentNode;
+    if (evt.target.classList.contains('popup__close') && evt.keyCode === KEYCODE_ENTER) {
       map.removeChild(currentPopup);
       deactivateActiveMapPin();
     }
