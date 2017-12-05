@@ -1,6 +1,8 @@
 'use strict';
 
-var objectsQuantaty = 9;
+var OBJECTS_QUANTITY = 8;
+var KEYCODE_ENTER = 13;
+var KEYCODE_ESC = 27;
 var map = document.querySelector('.map');
 var template = document.querySelector('template');
 var btnTemplate = template.content.querySelector('.map__pin');
@@ -10,7 +12,7 @@ var mainPin = document.querySelector('.map__pin--main');
 var form = document.querySelector('.notice__form');
 var formSubmitBtn = form.querySelector('.form__submit');
 var formFieldsets = form.querySelectorAll('fieldset');
-var intitialDataArray = generateInitialDataArray(objectsQuantaty);
+var intitialDataArray = generateInitialDataArray(OBJECTS_QUANTITY);
 var titleInput = form.querySelector('#title');
 var addressInput = form.querySelector('#address');
 var priceInput = form.querySelector('#price');
@@ -23,10 +25,6 @@ var mapFiltersContainer = map.querySelector('.map__filters-container');
 var titleMinLength = 30;
 var titleMaxLength = 100;
 var allMapPins;
-var keyCodes = {
-  enter: 13,
-  esc: 27
-};
 
 function generateInitialDataArray(objectsAmount) {
   var titles = [
@@ -51,7 +49,7 @@ function generateInitialDataArray(objectsAmount) {
   var x = 0;
   var y = 0;
 
-  for (var i = 1; i < objectsAmount; i++) {
+  for (var i = 1; i <= objectsAmount; i++) {
     x = getRandomValue(xRange.max, xRange.min);
     y = getRandomValue(yRange.max, yRange.min);
     data.push({
@@ -100,7 +98,9 @@ function createMapPin(post) {
   });
 
   btnTemplateClone.addEventListener('keydown', function (e) {
-    if (e.keyCode === keyCodes.esc) {
+    if (e.keyCode === KEYCODE_ESC && map.querySelector('.popup') !== null) {
+      var currentPopup = map.querySelector('.popup');
+      map.removeChild(currentPopup);
       deactivateActiveMapPin();
     }
   });
@@ -311,7 +311,7 @@ formSubmitBtn.addEventListener('click', function (e) {
   for (var i = 0; i < formFields.length; i++) {
     if (!formFields[i].validity.valid) {
       formFields[i].style.boxShadow = '0 0 5px 2px red';
-      e.preventDefault()
+      e.preventDefault();
     } else {
       formFields[i].style.boxShadow = '';
     }
