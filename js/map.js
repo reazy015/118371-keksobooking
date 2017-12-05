@@ -57,7 +57,7 @@ function generateInitialDataArray(objectsAmount) {
         avatar: 'img/avatars/user' + supplementNumberWithZero(i) + '.png'
       },
       offer: {
-        title: getRandomArrayItem(titles),
+        title: titles[i-1],
         address: x + ', ' + y,
         price: getRandomValue(priceRange.max, priceRange.min),
         type: getRandomArrayItem(types),
@@ -88,17 +88,17 @@ function createMapPin(post) {
   btnTemplateClone.style.top = post.location.y - templateHeight / 2 - templatePseudoElemHeight + 'px';
   btnTemplateClone.querySelector('img').src = post.author.avatar;
 
-  btnTemplateClone.addEventListener('click', function (e) {
+  btnTemplateClone.addEventListener('click', function (evt) {
     if (map.querySelector('.popup') !== null) {
       var currentPopup = map.querySelector('.popup');
       map.removeChild(currentPopup);
     }
     renderMapPopup(post);
-    activateCurrentMapPin(e);
+    activateCurrentMapPin(evt);
   });
 
-  btnTemplateClone.addEventListener('keydown', function (e) {
-    if (e.keyCode === KEYCODE_ESC && map.querySelector('.popup') !== null) {
+  document.addEventListener('keydown', function (evt) {
+    if (evt.keyCode === KEYCODE_ESC && map.querySelector('.popup') !== null) {
       var currentPopup = map.querySelector('.popup');
       map.removeChild(currentPopup);
       deactivateActiveMapPin();
@@ -145,9 +145,9 @@ function renderMapPopup(post) {
   features.appendChild(featuresFragment);
   features.nextElementSibling.textContent = post.offer.description;
 
-  popupTemplate.addEventListener('click', function (e) {
-    var currentPopup = e.target.parentNode;
-    if (e.target.classList.contains('popup__close')) {
+  popupTemplate.addEventListener('click', function (evt) {
+    var currentPopup = evt.target.parentNode;
+    if (evt.target.classList.contains('popup__close')) {
       map.removeChild(currentPopup);
       deactivateActiveMapPin();
     }
@@ -162,7 +162,7 @@ function getRandomValue(max, min) {
 
 function getRandomArraySubset(array) {
   var arrayClone = array.slice();
-  var subsetLength = getRandomValue(array.length - 1, 0);
+  var subsetLength = getRandomValue(array.length, 0);
   var subset = [];
   var item;
 
@@ -205,9 +205,9 @@ function deactivateActiveMapPin() {
   });
 }
 
-function activateCurrentMapPin(e) {
+function activateCurrentMapPin(evt) {
   deactivateActiveMapPin();
-  e.target.closest('.map__pin').classList.add('map__pin--active');
+  evt.target.closest('.map__pin').classList.add('map__pin--active');
 }
 
 toggleFromDisability(formFieldsets, true);
@@ -305,13 +305,13 @@ roomNumber.addEventListener('change', function () {
   }
 });
 
-formSubmitBtn.addEventListener('click', function (e) {
+formSubmitBtn.addEventListener('click', function (evt) {
   var formFields = form.elements;
 
   for (var i = 0; i < formFields.length; i++) {
     if (!formFields[i].validity.valid) {
       formFields[i].style.boxShadow = '0 0 5px 2px red';
-      e.preventDefault();
+      evt.preventDefault();
     } else {
       formFields[i].style.boxShadow = '';
     }
