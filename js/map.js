@@ -10,11 +10,9 @@ var articleTemplate = template.content.querySelector('.map__card');
 var pinMap = document.querySelector('.map__pins');
 var mainPin = document.querySelector('.map__pin--main');
 var form = document.querySelector('.notice__form');
-var formSubmitBtn = form.querySelector('.form__submit');
 var formFieldsets = form.querySelectorAll('fieldset');
 var intitialDataArray = generateInitialDataArray(OBJECTS_QUANTITY);
 var titleInput = form.querySelector('#title');
-var addressInput = form.querySelector('#address');
 var priceInput = form.querySelector('#price');
 var timeinInput = form.querySelector('#timein');
 var timeoutInput = form.querySelector('#timeout');
@@ -22,8 +20,6 @@ var houseType = form.querySelector('#type');
 var roomNumber = form.querySelector('#room_number');
 var roomCapacity = form.querySelector('#capacity');
 var mapFiltersContainer = map.querySelector('.map__filters-container');
-var titleMinLength = 30;
-var titleMaxLength = 100;
 var allMapPins;
 
 function generateInitialDataArray(objectsAmount) {
@@ -95,17 +91,19 @@ function createMapPin(post) {
     }
     renderMapPopup(post);
     activateCurrentMapPin(evt);
-  });
-
-  document.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === KEYCODE_ESC && map.querySelector('.popup') !== null) {
-      var currentPopup = map.querySelector('.popup');
-      map.removeChild(currentPopup);
-      deactivateActiveMapPin();
-    }
+    document.addEventListener('keydown', closePopup);
   });
 
   return btnTemplateClone;
+}
+
+function closePopup(evt) {
+  if (evt.keyCode === KEYCODE_ESC && map.querySelector('.popup') !== null) {
+    var currentPopup = map.querySelector('.popup');
+    map.removeChild(currentPopup);
+    deactivateActiveMapPin();
+    document.removeEventListener('keydown', closePopup);
+  }
 }
 
 function renderMapPins(posts) {
@@ -221,55 +219,50 @@ function activateCurrentMapPin(evt) {
 toggleFromDisability(formFieldsets, true);
 mainPin.addEventListener('mouseup', activateMap);
 
-form.setAttribute('action', 'https://js.dump.academy/keksobooking');
-form.setAttribute('method', 'post');
-addressInput.setAttribute('readonly', true);
-addressInput.setAttribute('required', '');
-titleInput.setAttribute('required', '');
-titleInput.setAttribute('minlength', titleMinLength);
-titleInput.setAttribute('maxlength', titleMaxLength);
-priceInput.setAttribute('min', 0);
-priceInput.setAttribute('max', 1000000);
-priceInput.setAttribute('required', '');
-priceInput.setAttribute('type', 'number');
 
-addressInput.addEventListener('invalid', function () {
-  return addressInput.validity.valueMissing === true ? addressInput.setCustomValidity('Поле обязательное для заполнения') : addressInput.setCustomValidity('');
-});
-
-titleInput.addEventListener('invalid', function () {
-  if (titleInput.validity.valueMissing) {
-    titleInput.setCustomValidity('Обязательно поле для заполнения');
-  } else if (titleInput.validity.tooShort) {
-    titleInput.setCustomValidity('Поле должно быть не менее ' + titleMinLength + ' символов');
-  } else if (titleInput.validity.tooLong) {
-    titleInput.setCustomValidity('Поле должео быть не более ' + titleMaxLength + ' символов');
-  } else {
-    titleInput.setCustomValidity('');
+function checkValidity(evt) {
+  var input = evt.target;
+  if (input.type === 'number') {
+    if (input.validity.valueMissing) {
+      input.setCustomValidity('Обязательное поле для заполнения');
+    } else if (input.validity.rangeUnderflow) {
+      input.setCustomValidity('Значение должно быть не менее ' + input.min);
+      input.value = input.min;
+    } else if (input.validity.rangeOverflow) {
+      input.setCustomValidity('Значение должно быть не более ' + input.max);
+      input.value = input.max;
+    } else {
+      input.setCustomValidity('');
+    }
   }
-});
 
-priceInput.addEventListener('invalid', function () {
-  if (priceInput.validity.valueMissing) {
-    priceInput.setCustomValidity('Обязательное поле для заполнения');
-  } else if (priceInput.validity.rangeUnderflow) {
-    priceInput.setCustomValidity('Значение должно быть не менее ' + priceInput.min);
-    priceInput.value = priceInput.min;
-  } else if (priceInput.validity.rangeOverflow) {
-    priceInput.setCustomValidity('Значение должно быть не более ' + priceInput.max);
-    priceInput.value = priceInput.max;
-  } else {
-    priceInput.setCustomValidity('');
+  if (input.type === 'text') {
+    if (input.validity.valueMissing) {
+      input.setCustomValidity('Обязательно поле для заполнения');
+    } else if (input.validity.tooShort) {
+      input.setCustomValidity('Поле должно быть не менее ' + input.minLength + ' символов');
+    } else if (input.validity.tooLong) {
+      input.setCustomValidity('Поле должео быть не более ' + input.maxLength + ' символов');
+    } else {
+      input.setCustomValidity('');
+    }
   }
-});
+}
 
-timeinInput.addEventListener('change', function () {
+function syncTimeInputs() {
   timeoutInput.selectedIndex = timeinInput.selectedIndex;
-});
+}
 
-timeoutInput.addEventListener('change', function () {
-  timeinInput.selectedIndex = timeoutInput.selectedIndex;
-});
+function markErrorInput(input) {
+  input.style.boxShadow = '0 0 5px 2px red';
+}
+
+titleInput.addEventListener('invalid', checkValidity);
+titleInput.addEventListener('change', checkValidity);
+priceInput.addEventListener('invalid', checkValidity);
+priceInput.addEventListener('change', checkValidity);
+timeinInput.addEventListener('change', syncTimeInputs);
+timeoutInput.addEventListener('change', syncTimeInputs);
 
 houseType.addEventListener('change', function () {
   switch (houseType.value) {
@@ -313,15 +306,13 @@ roomNumber.addEventListener('change', function () {
   }
 });
 
-formSubmitBtn.addEventListener('click', function (evt) {
+form.addEventListener('submit', function (evt) {
   var formFields = form.elements;
 
   for (var i = 0; i < formFields.length; i++) {
-    if (!formFields[i].validity.valid) {
-      formFields[i].style.boxShadow = '0 0 5px 2px red';
+    if (formFields[i].name === 'address' && !formFields[i].value) {
+      markErrorInput(formFields[i]);
       evt.preventDefault();
-    } else {
-      formFields[i].style.boxShadow = '';
     }
   }
 });
