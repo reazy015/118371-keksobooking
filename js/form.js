@@ -9,8 +9,12 @@ window.formValidation = (function () {
   var houseType = form.querySelector('#type');
   var roomNumber = form.querySelector('#room_number');
   var roomCapacity = form.querySelector('#capacity');
+  var addressInput = form.querySelector('#address');
 
   return {
+    setAddressValue: function (xCoords, yCoords) {
+      addressInput.value = 'X: ' + xCoords + ' Y: ' + yCoords;
+    },
     formCheck: function () {
 
       function checkValidity(evt) {
