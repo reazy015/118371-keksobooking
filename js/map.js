@@ -11,7 +11,7 @@ var pinMap = document.querySelector('.map__pins');
 var mainPin = document.querySelector('.map__pin--main');
 var form = document.querySelector('.notice__form');
 var formFieldsets = form.querySelectorAll('fieldset');
-var intitialDataArray = generateInitialDataArray(OBJECTS_QUANTITY);
+var intitialDataArray = window.data.generateInitialDataArray(OBJECTS_QUANTITY);
 var titleInput = form.querySelector('#title');
 var priceInput = form.querySelector('#price');
 var timeinInput = form.querySelector('#timein');
@@ -21,59 +21,6 @@ var roomNumber = form.querySelector('#room_number');
 var roomCapacity = form.querySelector('#capacity');
 var mapFiltersContainer = map.querySelector('.map__filters-container');
 var allMapPins;
-
-function generateInitialDataArray(objectsAmount) {
-  var titles = [
-    'Большая уютная квартира',
-    'Маленькая неуютная квартира',
-    'Огромный прекрасный дворец',
-    'Маленький ужасный дворец',
-    'Красивый гостевой домик',
-    'Некрасивый негостеприимный домик',
-    'Уютное бунгало далеко от моря',
-    'Неуютное бунгало по колено в воде'
-  ];
-  var types = ['flat', 'house', 'bungalo'];
-  var times = ['12:00', '13:00', '14:00'];
-  var features = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
-  var priceRange = {min: 1000, max: 1000000};
-  var roomsRange = {min: 1, max: 5};
-  var guestRange = {min: 1, max: 4};
-  var xRange = {min: 300, max: 900};
-  var yRange = {min: 100, max: 500};
-  var data = [];
-  var x = 0;
-  var y = 0;
-
-  for (var i = 1; i <= objectsAmount; i++) {
-    x = getRandomValue(xRange.max, xRange.min);
-    y = getRandomValue(yRange.max, yRange.min);
-    data.push({
-      author: {
-        avatar: 'img/avatars/user' + supplementNumberWithZero(i) + '.png'
-      },
-      offer: {
-        title: titles[i - 1],
-        address: x + ', ' + y,
-        price: getRandomValue(priceRange.max, priceRange.min),
-        type: getRandomArrayItem(types),
-        rooms: getRandomValue(roomsRange.max, roomsRange.min),
-        guests: getRandomValue(guestRange.max, guestRange.min),
-        checkin: getRandomArrayItem(times),
-        checkout: getRandomArrayItem(times),
-        features: getRandomArraySubset(features),
-        description: '',
-        photos: []
-      },
-      location: {
-        x: x,
-        y: y
-      }
-    });
-  }
-
-  return data;
-}
 
 function createMapPin(post) {
   var btnTemplateClone = btnTemplate.cloneNode(true);
@@ -162,25 +109,21 @@ function renderMapPopup(post) {
   map.insertBefore(popupTemplate, mapFiltersContainer);
 }
 
-function getRandomValue(max, min) {
-  return Math.floor(Math.random() * ((max + 1) - min) + min);
-}
-
 function getRandomArraySubset(array) {
   var arrayClone = array.slice();
-  var subsetLength = getRandomValue(array.length, 0);
+  var subsetLength = window.utils.getRandomValue(array.length, 0);
   var subset = [];
   var item;
 
   for (var i = 0; i < subsetLength; i++) {
-    item = arrayClone.splice(getRandomValue(arrayClone.length - 1, 0), 1);
+    item = arrayClone.splice(window.utils.getRandomValue(arrayClone.length - 1, 0), 1);
     subset.push(item[0]);
   }
   return subset;
 }
 
 function getRandomArrayItem(array) {
-  return array[getRandomValue(array.length - 1, 0)];
+  return array[window.utils.getRandomValue(array.length - 1, 0)];
 }
 
 function supplementNumberWithZero(value) {
@@ -253,16 +196,16 @@ function syncTimeInputs() {
   timeoutInput.selectedIndex = timeinInput.selectedIndex;
 }
 
-function markErrorInput(input) {
-  input.style.boxShadow = '0 0 5px 2px red';
+function toggleErrorInput(input, state) {
+  state ? input.style.boxShadow = '0 0 5px 2px red' : input.style.boxShadow = '';
 }
 
 titleInput.addEventListener('invalid', checkValidity);
-titleInput.addEventListener('change', checkValidity);
+titleInput.addEventListener('input', checkValidity);
 priceInput.addEventListener('invalid', checkValidity);
-priceInput.addEventListener('change', checkValidity);
-timeinInput.addEventListener('change', syncTimeInputs);
-timeoutInput.addEventListener('change', syncTimeInputs);
+priceInput.addEventListener('input', checkValidity);
+timeinInput.addEventListener('input', syncTimeInputs);
+timeoutInput.addEventListener('input', syncTimeInputs);
 
 houseType.addEventListener('change', function () {
   switch (houseType.value) {
@@ -311,8 +254,10 @@ form.addEventListener('submit', function (evt) {
 
   for (var i = 0; i < formFields.length; i++) {
     if (formFields[i].name === 'address' && !formFields[i].value) {
-      markErrorInput(formFields[i]);
+      toggleErrorInput(formFields[i], true);
       evt.preventDefault();
+    } else {
+      toggleErrorInput(formFields[i], false);
     }
   }
 });
