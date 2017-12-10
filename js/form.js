@@ -1,16 +1,7 @@
+'use strict';
+
 window.formValidation = (function () {
-  var OBJECTS_QUANTITY = 8;
-  var KEYCODE_ENTER = 13;
-  var KEYCODE_ESC = 27;
-  var map = document.querySelector('.map');
-  var template = document.querySelector('template');
-  var btnTemplate = template.content.querySelector('.map__pin');
-  var articleTemplate = template.content.querySelector('.map__card');
-  var pinMap = document.querySelector('.map__pins');
-  var mainPin = document.querySelector('.map__pin--main');
   var form = document.querySelector('.notice__form');
-  var formFieldsets = form.querySelectorAll('fieldset');
-  var intitialDataArray = window.data.generateInitialDataArray(OBJECTS_QUANTITY);
   var titleInput = form.querySelector('#title');
   var priceInput = form.querySelector('#price');
   var timeinInput = form.querySelector('#timein');
@@ -18,8 +9,6 @@ window.formValidation = (function () {
   var houseType = form.querySelector('#type');
   var roomNumber = form.querySelector('#room_number');
   var roomCapacity = form.querySelector('#capacity');
-  var mapFiltersContainer = map.querySelector('.map__filters-container');
-  var allMapPins;
 
   return {
     formCheck: function () {
@@ -38,7 +27,7 @@ window.formValidation = (function () {
         }
 
         if (input.type === 'text') {
-         if (input.validity.tooShort) {
+          if (input.validity.tooShort) {
             input.setCustomValidity('Поле должно быть не менее ' + input.minLength + ' символов');
           } else if (input.validity.tooLong) {
             input.setCustomValidity('Поле должео быть не более ' + input.maxLength + ' символов');
@@ -65,7 +54,11 @@ window.formValidation = (function () {
       }
 
       function toggleErrorInput(input, state) {
-        state ? input.style.boxShadow = '0 0 5px 2px red' : input.style.boxShadow = '';
+        if (state) {
+          input.style.boxShadow = '0 0 5px 2px red';
+        } else {
+          input.style.boxShadow = '';
+        }
       }
 
       houseType.addEventListener('change', function () {
@@ -126,5 +119,5 @@ window.formValidation = (function () {
       timeinInput.addEventListener('input', syncTimeInputs);
       timeoutInput.addEventListener('input', syncTimeInputs);
     }
-  }
+  };
 })();

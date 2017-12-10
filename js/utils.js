@@ -1,9 +1,11 @@
+'use strict';
+
 window.utils = (function () {
   var allMapPins;
 
   return {
     getRandomValue: function (max, min) {
-        return Math.floor(Math.random() * ((max + 1) - min) + min);
+      return Math.floor(Math.random() * ((max + 1) - min) + min);
     },
     supplementNumberWithZero: function (value) {
       return value < 10 ? '0' + value : value;
@@ -35,5 +37,5 @@ window.utils = (function () {
       this.deactivateActiveMapPin();
       evt.target.closest('.map__pin').classList.add('map__pin--active');
     }
-  }
+  };
 })();

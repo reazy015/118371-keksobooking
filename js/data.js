@@ -1,3 +1,5 @@
+'use strict';
+
 window.data = (function () {
 
   return {
@@ -53,5 +55,5 @@ window.data = (function () {
 
       return data;
     }
-  }
+  };
 })();
