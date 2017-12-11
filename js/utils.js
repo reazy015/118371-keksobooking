@@ -1,6 +1,7 @@
 'use strict';
 
 window.utils = (function () {
+  var addressInput = document.querySelector('#address');
   var allMapPins;
 
   return {
@@ -36,6 +37,9 @@ window.utils = (function () {
     activateCurrentMapPin: function (evt) {
       this.deactivateActiveMapPin();
       evt.target.closest('.map__pin').classList.add('map__pin--active');
+    },
+    setAddressValue: function (xCoords, yCoords) {
+      addressInput.value = 'x: ' + '{{ ' + xCoords + ' }}' + ' y: ' + '{{ ' + yCoords + ' }}';
     }
   };
 })();
