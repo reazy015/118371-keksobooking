@@ -1,9 +1,10 @@
 'use strict';
 
 window.map = (function () {
+  var mapWidth = document.querySelector('.map__pinsoverlay');
   var MAX_Y = 500;
   var MIN_Y = 100;
-  var MAX_X = document.body.clientWidth;
+  var MAX_X = mapWidth.clientWidth;
   var MIN_X = 0;
   var MAP_PIN_MAIN_WIDTH = 65;
   var MAP_PIN_MAIN_HEIGHT = 87;
