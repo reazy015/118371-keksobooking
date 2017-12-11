@@ -49,7 +49,7 @@ window.card = (function () {
         var currentPopup = evt.target.parentNode;
         if (evt.target.classList.contains('popup__close') && evt.keyCode === KEYCODE_ENTER) {
           map.removeChild(currentPopup);
-          window.util.deactivateActiveMapPin();
+          window.utils.deactivateActiveMapPin();
         }
       });
 
