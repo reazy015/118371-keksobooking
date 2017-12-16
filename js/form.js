@@ -2,6 +2,7 @@
 
 window.formValidation = (function () {
   var form = document.querySelector('.notice__form');
+  var formInputs = form.querySelectorAll('input');
   var titleInput = form.querySelector('#title');
   var priceInput = form.querySelector('#price');
   var timeinInput = form.querySelector('#timein');
@@ -57,24 +58,31 @@ window.formValidation = (function () {
       }
     }
 
+    function setPriceMin(element, value) {
+      element.min = value;
+    }
+
+    function successFormSend() {
+      window.utils.msgPopup('Данные успешно отправлены');
+      form.reset();
+    }
+
     timeinInput.addEventListener('change', window.synchronizeFields(timeinInput, timeoutInput, TIMES, TIMES, utils.syncValues));
     timeoutInput.addEventListener('change', window.synchronizeFields(timeoutInput, timeinInput, TIMES, TIMES, utils.syncValues));
     roomNumber.addEventListener('change', window.synchronizeFields(roomNumber, roomCapacity, ROOMS, GUESTS, utils.syncValues));
     roomCapacity.addEventListener('change', window.synchronizeFields(roomCapacity, roomNumber, ROOMS, GUESTS, utils.syncValues));
     houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, utils.syncValues));
+    houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, setPriceMin));
 
     form.addEventListener('submit', function (evt) {
-      var formFields = form.elements;
-
-      for (var i = 0; i < formFields.length; i++) {
-        if (formFields[i].name === 'address' && !formFields[i].value) {
-          toggleErrorInput(formFields[i], true);
-          evt.preventDefault();
-        } else {
-          toggleErrorInput(formFields[i], false);
+      evt.preventDefault();
+      for (var i = 0; i < formInputs.length; i++) {
+        if (formInputs[i].name === 'address' && formInputs[i].value === '') {
+          toggleErrorInput(formInputs[i], true);
         }
       }
-    });
+      window.backend.save(new FormData(form), successFormSend, window.utils.msgPopup);
+    });;
 
     titleInput.addEventListener('invalid', checkValidity);
     titleInput.addEventListener('input', checkValidity);

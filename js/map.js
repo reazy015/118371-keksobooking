@@ -20,6 +20,10 @@ window.map = (function () {
   var roomCapacity = form.querySelector('#capacity');
   var intitialDataArray = window.data;
 
+  function showErrorMessage(msg) {
+    console.log(msg);
+  }
+
   function renderMapPins(posts) {
     var fragment = document.createDocumentFragment();
 
@@ -36,7 +40,7 @@ window.map = (function () {
   }
 
   function activateMap() {
-    renderMapPins(intitialDataArray);
+    window.backend.load(renderMapPins, showErrorMessage)
     toggleFromDisability(formFieldsets, false);
     map.classList.remove('map--faded');
     form.classList.remove('notice__form--disabled');

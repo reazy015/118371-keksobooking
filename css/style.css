@@ -847,3 +847,17 @@ textarea:focus
 {
     background-position: -10px -10px;
 }
+.user-pop
+{
+    padding: 30px 40px;
+    color: black;
+    font-size: 25px;
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    background-color: white;
+    border: 1px solid black;
+}

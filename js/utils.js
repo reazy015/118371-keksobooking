@@ -1,8 +1,11 @@
 'use strict';
 
 window.utils = (function () {
+  var KEYCODE_ESC = 27;
   var addressInput = document.querySelector('#address');
+  var form = document.querySelector('.notice__form');
   var allMapPins;
+
 
   return {
     getRandomValue: function (max, min) {
@@ -42,7 +45,23 @@ window.utils = (function () {
       addressInput.value = 'x: ' + '{{ ' + xCoords + ' }}' + ' y: ' + '{{ ' + yCoords + ' }}';
     },
     syncValues: function (element, value) {
-            element.value = value;
+      element.value = value;
+    },
+    msgPopup: function (msg, borderColor) {
+      var popup = document.createElement('div');
+      popup.classList.add('user-pop');
+      popup.textContent = msg;
+      document.body.insertAdjacentElement('afterbegin', popup);
+
+      document.addEventListener('click', window.utils.removePopup(popup));
+    },
+    removePopup: function (popup) {
+      return function () {
+        if (!document.querySelector('.user-popup') != null) {
+          document.body.removeChild(popup);
+          document.removeEventListener('click', window.utils.removePopup(popup));
+        }
+      }
     }
   };
 })();
