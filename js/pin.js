@@ -14,7 +14,7 @@ window.pin = (function () {
     btnTemplateClone.style.top = post.location.y - templateHeight / 2 - templatePseudoElemHeight + 'px';
     btnTemplateClone.querySelector('img').src = post.author.avatar;
 
-    btnTemplateClone.addEventListener('click', window.card.openPopup(post));
+    btnTemplateClone.addEventListener('click', window.showCard(post));
 
     return btnTemplateClone;
   }
