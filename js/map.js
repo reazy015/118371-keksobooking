@@ -8,11 +8,16 @@ window.map = (function () {
   var MIN_X = 0;
   var MAP_PIN_MAIN_WIDTH = 65;
   var MAP_PIN_MAIN_HEIGHT = 87;
+  var ROOMS = ['1', '2', '3', '100'];
+  var GUESTS = ['1', '2', '3', '0'];
+  var MIN_PRICE = [0, 1000, 5000, 10000];
   var map = document.querySelector('.map');
   var pinMap = document.querySelector('.map__pins');
   var mainPin = document.querySelector('.map__pin--main');
   var form = document.querySelector('.notice__form');
   var formFieldsets = form.querySelectorAll('fieldset');
+  var roomNumber = form.querySelector('#room_number');
+  var roomCapacity = form.querySelector('#capacity');
   var intitialDataArray = window.data;
 
   function renderMapPins(posts) {

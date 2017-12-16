@@ -40,6 +40,9 @@ window.utils = (function () {
     },
     setAddressValue: function (xCoords, yCoords) {
       addressInput.value = 'x: ' + '{{ ' + xCoords + ' }}' + ' y: ' + '{{ ' + yCoords + ' }}';
+    },
+    syncValues: function (element, value) {
+            element.value = value;
     }
   };
 })();
