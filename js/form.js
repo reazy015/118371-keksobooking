@@ -7,6 +7,7 @@ window.formValidation = (function () {
   var priceInput = form.querySelector('#price');
   var timeinInput = form.querySelector('#timein');
   var timeoutInput = form.querySelector('#timeout');
+  var addressInput = document.querySelector('#address');
   var houseType = form.querySelector('#type');
   var roomNumber = form.querySelector('#room_number');
   var roomCapacity = form.querySelector('#capacity');
@@ -16,79 +17,104 @@ window.formValidation = (function () {
   var TIMES = ['12:00', '13:00', '14:00'];
   var TYPES = ['bungalo', 'flat', 'house', 'palace'];
 
-  function formCheck() {
+  function checkCommonValidity(evt) {
+    var input = evt.target;
 
-    function checkValidity(evt) {
-      commonValidity(evt);
-      var input = evt.target;
-      if (input.type === 'number') {
-        if (input.validity.rangeUnderflow) {
-          input.setCustomValidity('Значение должно быть не менее ' + input.min);
-          input.value = input.min;
-        } else if (input.validity.rangeOverflow) {
-          input.setCustomValidity('Значение должно быть не более ' + input.max);
-          input.value = input.max;
-        }
-      }
-
-      if (input.type === 'text') {
-        if (input.validity.tooShort) {
-          input.setCustomValidity('Поле должно быть не менее ' + input.minLength + ' символов');
-        } else if (input.validity.tooLong) {
-          input.setCustomValidity('Поле должео быть не более ' + input.maxLength + ' символов');
-        }
-      }
+    if (input.validity.valueMissing) {
+      input.setCustomValidity('Обязательное поле для заполнения');
+    } else {
+      input.setCustomValidity('');
     }
-
-    function commonValidity(evt) {
-      var input = evt.target;
-
-      if (input.validity.valueMissing) {
-        input.setCustomValidity('Обязательное поле для заполнения');
-      } else {
-        input.setCustomValidity('');
-      }
-    }
-
-    function toggleErrorInput(input, state) {
-      if (state) {
-        input.style.boxShadow = '0 0 5px 2px red';
-      } else {
-        input.style.boxShadow = '';
-      }
-    }
-
-    function setPriceMin(element, value) {
-      element.min = value;
-    }
-
-    function successFormSend() {
-      window.utils.msgPopup('Данные успешно отправлены');
-      form.reset();
-    }
-
-    timeinInput.addEventListener('change', window.synchronizeFields(timeinInput, timeoutInput, TIMES, TIMES, utils.syncValues));
-    timeoutInput.addEventListener('change', window.synchronizeFields(timeoutInput, timeinInput, TIMES, TIMES, utils.syncValues));
-    roomNumber.addEventListener('change', window.synchronizeFields(roomNumber, roomCapacity, ROOMS, GUESTS, utils.syncValues));
-    roomCapacity.addEventListener('change', window.synchronizeFields(roomCapacity, roomNumber, ROOMS, GUESTS, utils.syncValues));
-    houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, utils.syncValues));
-    houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, setPriceMin));
-
-    form.addEventListener('submit', function (evt) {
-      evt.preventDefault();
-      for (var i = 0; i < formInputs.length; i++) {
-        if (formInputs[i].name === 'address' && formInputs[i].value === '') {
-          toggleErrorInput(formInputs[i], true);
-        }
-      }
-      window.backend.save(new FormData(form), successFormSend, window.utils.msgPopup);
-    });;
-
-    titleInput.addEventListener('invalid', checkValidity);
-    titleInput.addEventListener('input', checkValidity);
-    priceInput.addEventListener('invalid', checkValidity);
-    priceInput.addEventListener('input', checkValidity);
   }
 
-  return formCheck;
+  function toggleErrorInput(input, state) {
+    if (state) {
+      input.style.boxShadow = '0 0 5px 2px red';
+    } else {
+      input.style.boxShadow = '';
+    }
+  }
+
+  function setPriceMin(element, value) {
+    element.min = value;
+  }
+
+  function successFormSend() {
+    msgPopup('Данные успешно отправлены');
+    form.reset();
+  }
+
+  function syncValues(element, value) {
+    element.value = value;
+  }
+
+  function checkValidity(evt) {
+    checkCommonValidity(evt);
+    var input = evt.target;
+    if (input.type === 'number') {
+      if (input.validity.rangeUnderflow) {
+        input.setCustomValidity('Значение должно быть не менее ' + input.min);
+        input.value = input.min;
+      } else if (input.validity.rangeOverflow) {
+        input.setCustomValidity('Значение должно быть не более ' + input.max);
+        input.value = input.max;
+      }
+    }
+
+    if (input.type === 'text') {
+      if (input.validity.tooShort) {
+        input.setCustomValidity('Поле должно быть не менее ' + input.minLength + ' символов');
+      } else if (input.validity.tooLong) {
+        input.setCustomValidity('Поле должео быть не более ' + input.maxLength + ' символов');
+      }
+    }
+  }
+
+  function msgPopup(msg) {
+    var popup = document.createElement('div');
+    popup.classList.add('user-pop');
+    popup.textContent = msg;
+    document.body.insertAdjacentElement('afterbegin', popup);
+
+    document.addEventListener('click', removePopup);
+  }
+
+  function removePopup() {
+    var popup = document.querySelector('.user-pop');
+    if (popup) {
+      document.body.removeChild(popup);
+      document.removeEventListener('click', removePopup);
+    } else {
+      return;
+    }
+  }
+
+  return {
+    checkForm: function () {
+      timeinInput.addEventListener('change', window.synchronizeFields(timeinInput, timeoutInput, TIMES, TIMES, syncValues));
+      timeoutInput.addEventListener('change', window.synchronizeFields(timeoutInput, timeinInput, TIMES, TIMES, syncValues));
+      roomNumber.addEventListener('change', window.synchronizeFields(roomNumber, roomCapacity, ROOMS, GUESTS, syncValues));
+      roomCapacity.addEventListener('change', window.synchronizeFields(roomCapacity, roomNumber, ROOMS, GUESTS, syncValues));
+      houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, syncValues));
+      houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, setPriceMin));
+
+      form.addEventListener('submit', function (evt) {
+        evt.preventDefault();
+        for (var i = 0; i < formInputs.length; i++) {
+          if (formInputs[i].name === 'address' && formInputs[i].value === '') {
+            toggleErrorInput(formInputs[i], true);
+          }
+        }
+        window.backend.save(new FormData(form), successFormSend, msgPopup);
+      });
+
+      titleInput.addEventListener('invalid', checkValidity);
+      titleInput.addEventListener('input', checkValidity);
+      priceInput.addEventListener('invalid', checkValidity);
+      priceInput.addEventListener('input', checkValidity);
+    },
+    setAddressValue: function (xCoords, yCoords) {
+      addressInput.value = 'x: ' + xCoords + ' y: ' + yCoords;
+    }
+  };
 })();

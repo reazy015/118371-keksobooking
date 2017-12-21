@@ -30,9 +30,9 @@ window.card = (function () {
       popupTemplate.querySelector('.popup__features').innerHTML = '';
 
       for (var i = 0; i < post.offer.features.length; i++) {
-        var li = document.createElement('li');
-        li.className = 'feature  feature--' + post.offer.features[i];
-        featuresFragment.appendChild(li);
+        var featureItem = document.createElement('li');
+        featureItem.className = 'feature  feature--' + post.offer.features[i];
+        featuresFragment.appendChild(featureItem);
       }
       features.appendChild(featuresFragment);
       features.nextElementSibling.textContent = post.offer.description;
@@ -41,7 +41,7 @@ window.card = (function () {
         var currentPopup = evt.target.parentNode;
         if (evt.target.classList.contains('popup__close')) {
           map.removeChild(currentPopup);
-          window.utils.deactivateActiveMapPin();
+          window.pin.deactivateActiveMapPin();
         }
       });
 
@@ -49,7 +49,7 @@ window.card = (function () {
         var currentPopup = evt.target.parentNode;
         if (evt.target.classList.contains('popup__close') && evt.keyCode === KEYCODE_ENTER) {
           map.removeChild(currentPopup);
-          window.utils.deactivateActiveMapPin();
+          window.pin.deactivateActiveMapPin();
         }
       });
 
@@ -59,9 +59,20 @@ window.card = (function () {
       if (evt.keyCode === KEYCODE_ESC && map.querySelector('.popup') !== null) {
         var currentPopup = map.querySelector('.popup');
         map.removeChild(currentPopup);
-        window.utils.deactivateActiveMapPin();
+        window.pin.deactivateActiveMapPin();
         document.removeEventListener('keydown', this.closePopup);
       }
+    },
+    showCard: function (post) {
+      return function (evt) {
+        if (map.querySelector('.popup') !== null) {
+          var currentPopup = map.querySelector('.popup');
+          map.removeChild(currentPopup);
+        }
+        window.card.renderMapPopup(post);
+        window.pin.activateCurrentMapPin(evt);
+        document.addEventListener('keydown', window.card.closePopup);
+      };
     }
   };
 })();

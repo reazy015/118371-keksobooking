@@ -1,4 +1,6 @@
-window.backend  = (function () {
+'use strict';
+
+window.backend = (function () {
   var SERVER_URL = 'https://1510.dump.academy/keksobooking';
 
   function createXHRRequest(onLoad, onError) {
@@ -18,7 +20,7 @@ window.backend  = (function () {
     });
 
     xhr.addEventListener('timeout', function () {
-      onError('Запрос привысле время ожидания')
+      onError('Запрос привысле время ожидания');
     });
 
     xhr.timeout = 5000;
@@ -31,8 +33,7 @@ window.backend  = (function () {
       xhr.open('GET', SERVER_URL + '/data');
       xhr.send();
     },
-
-    save: function(data, onLoad, onError) {
+    save: function (data, onLoad, onError) {
       var xhr = createXHRRequest(onLoad, onError);
       xhr.open('POST', SERVER_URL);
       xhr.send(data);

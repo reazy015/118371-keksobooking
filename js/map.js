@@ -8,27 +8,17 @@ window.map = (function () {
   var MIN_X = 0;
   var MAP_PIN_MAIN_WIDTH = 65;
   var MAP_PIN_MAIN_HEIGHT = 87;
-  var ROOMS = ['1', '2', '3', '100'];
-  var GUESTS = ['1', '2', '3', '0'];
-  var MIN_PRICE = [0, 1000, 5000, 10000];
   var map = document.querySelector('.map');
   var pinMap = document.querySelector('.map__pins');
   var mainPin = document.querySelector('.map__pin--main');
   var form = document.querySelector('.notice__form');
   var formFieldsets = form.querySelectorAll('fieldset');
-  var roomNumber = form.querySelector('#room_number');
-  var roomCapacity = form.querySelector('#capacity');
-  var intitialDataArray = window.data;
-
-  function showErrorMessage(msg) {
-    console.log(msg);
-  }
 
   function renderMapPins(posts) {
     var fragment = document.createDocumentFragment();
 
     for (var i = 0; i < posts.length; i++) {
-      fragment.appendChild(window.pin(posts[i]));
+      fragment.appendChild(window.pin.createMapPin(posts[i]));
     }
     pinMap.appendChild(fragment);
   }
@@ -40,18 +30,12 @@ window.map = (function () {
   }
 
   function activateMap() {
-    window.backend.load(renderMapPins, showErrorMessage)
+    window.backend.load(renderMapPins);
     toggleFromDisability(formFieldsets, false);
     map.classList.remove('map--faded');
     form.classList.remove('notice__form--disabled');
     mainPin.removeEventListener('mouseup', activateMap);
   }
-
-  toggleFromDisability(formFieldsets, true);
-  window.formValidation();
-  mainPin.addEventListener('mouseup', activateMap);
-  mainPin.setAttribute('draggable', true);
-  mainPin.addEventListener('mousedown', onMainPin);
 
   function onMainPin(evt) {
     evt.preventDefault();
@@ -59,7 +43,8 @@ window.map = (function () {
       x: evt.clientX,
       y: evt.clientY
     };
-    var onMouseMove = function (moveEvt) {
+
+    function onMouseMove(moveEvt) {
       moveEvt.preventDefault();
       var shift = {
         x: startCoords.x - moveEvt.clientX,
@@ -81,17 +66,23 @@ window.map = (function () {
       }
       var inputX = newX + MAP_PIN_MAIN_WIDTH / 2;
       var inputY = newY + MAP_PIN_MAIN_HEIGHT;
-      window.utils.setAddressValue(inputX, inputY);
-    };
+      window.formValidation.setAddressValue(inputX, inputY);
+    }
 
-    var onMouseUp = function (upEvt) {
+    function onMouseUp(upEvt) {
       upEvt.preventDefault();
 
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
-    };
+    }
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   }
+
+  toggleFromDisability(formFieldsets, true);
+  window.formValidation.checkForm();
+  mainPin.addEventListener('mouseup', activateMap);
+  mainPin.setAttribute('draggable', true);
+  mainPin.addEventListener('mousedown', onMainPin);
 })();
