@@ -8,11 +8,15 @@ window.map = (function () {
   var MIN_X = 0;
   var MAP_PIN_MAIN_WIDTH = 65;
   var MAP_PIN_MAIN_HEIGHT = 87;
+  var form = document.querySelector('.notice__form');
+  var addressInput = form.querySelector('#address');
   var map = document.querySelector('.map');
   var pinMap = document.querySelector('.map__pins');
   var mainPin = document.querySelector('.map__pin--main');
-  var form = document.querySelector('.notice__form');
   var formFieldsets = form.querySelectorAll('fieldset');
+  var houseFilter = document.querySelector('.map__filters');
+  var newObjects = [];
+  var allObjects = [];
 
   function renderMapPins(posts) {
     var fragment = document.createDocumentFragment();
@@ -23,18 +27,23 @@ window.map = (function () {
     pinMap.appendChild(fragment);
   }
 
-  function toggleFromDisability(fieldsetList, status) {
+  function toggleFormDisability(fieldsetList, status) {
     fieldsetList.forEach(function (fieldset) {
       fieldset.disabled = status;
     });
   }
 
   function activateMap() {
-    window.backend.load(renderMapPins);
-    toggleFromDisability(formFieldsets, false);
+    window.backend.load(onSuccessSave);
+    toggleFormDisability(formFieldsets, false);
     map.classList.remove('map--faded');
     form.classList.remove('notice__form--disabled');
     mainPin.removeEventListener('mouseup', activateMap);
+
+  }
+
+  function setAddressValue(xCoords, yCoords) {
+    addressInput.value = 'x: ' + xCoords + ' y: ' + yCoords;
   }
 
   function onMainPin(evt) {
@@ -66,7 +75,7 @@ window.map = (function () {
       }
       var inputX = newX + MAP_PIN_MAIN_WIDTH / 2;
       var inputY = newY + MAP_PIN_MAIN_HEIGHT;
-      window.formValidation.setAddressValue(inputX, inputY);
+      setAddressValue(inputX, inputY);
     }
 
     function onMouseUp(upEvt) {
@@ -80,9 +89,28 @@ window.map = (function () {
     document.addEventListener('mouseup', onMouseUp);
   }
 
-  toggleFromDisability(formFieldsets, true);
-  window.formValidation.checkForm();
+  function onChangeFilter() {
+    allObjects = window.mapFilters.updateData(newObjects);
+    renderMapPins(allObjects);
+    resetPins();
+    window.debounce(renderMapPins(allObjects));
+  }
+
+  function onSuccessSave(arrData) {
+    newObjects = arrData.slice();
+    allObjects = window.mapFilters.sample(arrData);
+    renderMapPins(allObjects);
+  }
+
+  function resetPins() {
+    while (pinMap.childElementCount > 2) {
+      pinMap.removeChild(pinMap.lastChild);
+    }
+  }
+
+  toggleFormDisability(formFieldsets, true);
   mainPin.addEventListener('mouseup', activateMap);
   mainPin.setAttribute('draggable', true);
   mainPin.addEventListener('mousedown', onMainPin);
+  houseFilter.addEventListener('click', onChangeFilter);
 })();

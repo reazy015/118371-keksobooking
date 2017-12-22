@@ -7,7 +7,6 @@ window.formValidation = (function () {
   var priceInput = form.querySelector('#price');
   var timeinInput = form.querySelector('#timein');
   var timeoutInput = form.querySelector('#timeout');
-  var addressInput = document.querySelector('#address');
   var houseType = form.querySelector('#type');
   var roomNumber = form.querySelector('#room_number');
   var roomCapacity = form.querySelector('#capacity');
@@ -35,17 +34,13 @@ window.formValidation = (function () {
     }
   }
 
-  function setPriceMin(element, value) {
+  function setMinimumPrice(element, value) {
     element.min = value;
   }
 
   function successFormSend() {
-    msgPopup('Данные успешно отправлены');
+    messagePopup('Данные успешно отправлены');
     form.reset();
-  }
-
-  function syncValues(element, value) {
-    element.value = value;
   }
 
   function checkValidity(evt) {
@@ -70,7 +65,7 @@ window.formValidation = (function () {
     }
   }
 
-  function msgPopup(msg) {
+  function messagePopup(msg) {
     var popup = document.createElement('div');
     popup.classList.add('user-pop');
     popup.textContent = msg;
@@ -84,37 +79,40 @@ window.formValidation = (function () {
     if (popup) {
       document.body.removeChild(popup);
       document.removeEventListener('click', removePopup);
-    } else {
-      return;
     }
   }
 
-  return {
-    checkForm: function () {
-      timeinInput.addEventListener('change', window.synchronizeFields(timeinInput, timeoutInput, TIMES, TIMES, syncValues));
-      timeoutInput.addEventListener('change', window.synchronizeFields(timeoutInput, timeinInput, TIMES, TIMES, syncValues));
-      roomNumber.addEventListener('change', window.synchronizeFields(roomNumber, roomCapacity, ROOMS, GUESTS, syncValues));
-      roomCapacity.addEventListener('change', window.synchronizeFields(roomCapacity, roomNumber, ROOMS, GUESTS, syncValues));
-      houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, syncValues));
-      houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, setPriceMin));
+  function syncValues(element, value) {
+    element.value = value;
+  }
 
-      form.addEventListener('submit', function (evt) {
-        evt.preventDefault();
-        for (var i = 0; i < formInputs.length; i++) {
-          if (formInputs[i].name === 'address' && formInputs[i].value === '') {
-            toggleErrorInput(formInputs[i], true);
-          }
+  function checkForm() {
+    window.synchronizeFields(roomCapacity, roomNumber, ROOMS, GUESTS, syncValues)();
+    window.synchronizeFields(roomNumber, roomCapacity, ROOMS, GUESTS, syncValues)();
+
+    timeinInput.addEventListener('change', window.synchronizeFields(timeinInput, timeoutInput, TIMES, TIMES, syncValues));
+    timeoutInput.addEventListener('change', window.synchronizeFields(timeoutInput, timeinInput, TIMES, TIMES, syncValues));
+    roomNumber.addEventListener('change', window.synchronizeFields(roomNumber, roomCapacity, ROOMS, GUESTS, syncValues));
+    roomCapacity.addEventListener('change', window.synchronizeFields(roomCapacity, roomNumber, ROOMS, GUESTS, syncValues));
+    houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, syncValues));
+    houseType.addEventListener('change', window.synchronizeFields(houseType, priceInput, TYPES, MIN_PRICE, setMinimumPrice));
+
+    form.addEventListener('submit', function (evt) {
+      evt.preventDefault();
+      for (var i = 0; i < formInputs.length; i++) {
+        if (formInputs[i].name === 'address' && formInputs[i].value === '') {
+          toggleErrorInput(formInputs[i], true);
         }
-        window.backend.save(new FormData(form), successFormSend, msgPopup);
-      });
+      }
+      window.backend.save(new FormData(form), successFormSend, messagePopup);
+    });
 
-      titleInput.addEventListener('invalid', checkValidity);
-      titleInput.addEventListener('input', checkValidity);
-      priceInput.addEventListener('invalid', checkValidity);
-      priceInput.addEventListener('input', checkValidity);
-    },
-    setAddressValue: function (xCoords, yCoords) {
-      addressInput.value = 'x: ' + xCoords + ' y: ' + yCoords;
-    }
-  };
+    titleInput.addEventListener('invalid', checkValidity);
+    titleInput.addEventListener('input', checkValidity);
+    priceInput.addEventListener('invalid', checkValidity);
+    priceInput.addEventListener('input', checkValidity);
+  }
+
+  checkForm();
+
 })();
