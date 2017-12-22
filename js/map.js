@@ -18,15 +18,6 @@ window.map = (function () {
   var newObjects = [];
   var allObjects = [];
 
-  function renderMapPins(posts) {
-    var fragment = document.createDocumentFragment();
-
-    for (var i = 0; i < posts.length; i++) {
-      fragment.appendChild(window.pin.createMapPin(posts[i]));
-    }
-    pinMap.appendChild(fragment);
-  }
-
   function toggleFormDisability(fieldsetList, status) {
     fieldsetList.forEach(function (fieldset) {
       fieldset.disabled = status;
@@ -89,16 +80,9 @@ window.map = (function () {
     document.addEventListener('mouseup', onMouseUp);
   }
 
-  function onChangeFilter() {
-    allObjects = window.mapFilters.updateData(newObjects);
-    renderMapPins(allObjects);
-    resetPins();
-    window.debounce(renderMapPins(allObjects));
-  }
-
-  function onSuccessSave(arrData) {
-    newObjects = arrData.slice();
-    allObjects = window.mapFilters.sample(arrData);
+  function onSuccessSave(arrayData) {
+    newObjects = arrayData.slice();
+    allObjects = window.pin.sample(arrayData);
     renderMapPins(allObjects);
   }
 
@@ -108,9 +92,34 @@ window.map = (function () {
     }
   }
 
+  function resetPopup() {
+    var currentPopup = document.querySelector('.popup');
+    if (currentPopup) {
+      map.removeChild(currentPopup);
+    }
+  }
+
+  function onChangeFilter() {
+    allObjects = window.pin.updateData(newObjects);
+    renderMapPins(allObjects);
+    resetPins();
+    resetPopup();
+    window.debounce(renderMapPins(allObjects));
+  }
+
+  function renderMapPins(posts) {
+    var fragment = document.createDocumentFragment();
+
+    for (var i = 0; i < posts.length; i++) {
+      fragment.appendChild(window.pin.createMapPin(posts[i]));
+    }
+    pinMap.appendChild(fragment);
+  }
+
   toggleFormDisability(formFieldsets, true);
   mainPin.addEventListener('mouseup', activateMap);
   mainPin.setAttribute('draggable', true);
   mainPin.addEventListener('mousedown', onMainPin);
   houseFilter.addEventListener('click', onChangeFilter);
+
 })();
