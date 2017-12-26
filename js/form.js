@@ -102,7 +102,7 @@ window.formValidation = (function () {
       for (var i = 0; i < formInputs.length; i++) {
         if (formInputs[i].name === 'address' && formInputs[i].value === '') {
           toggleErrorInput(formInputs[i], true);
-        } else if (formInputs[i].name === 'address' && formInputs[i].value === '') {
+        } else if (formInputs[i].name === 'address' && formInputs[i].value !== null) {
           window.backend.save(new FormData(form), successFormSend, messagePopup);
           toggleErrorInput(formInputs[i], false);
         }
