@@ -23,11 +23,11 @@ window.card = (function () {
     popupTemplate.querySelector('.popup__avatar').src = post.author.avatar;
     popupTemplate.querySelector('h3').textContent = post.offer.title;
     popupTemplate.querySelector('small').textContent = post.offer.address;
-    popupTemplate.querySelector('.popup__price').innerHTML = post.offer.price + '&#x20bd;/ночь';
+    popupTemplate.querySelector('.popup__price').textContent = post.offer.price + '&#x20bd;/ночь';
     postType.textContent = dictionary[post.offer.type];
     postType.nextElementSibling.textContent = post.offer.rooms + ' комнаты для ' + post.offer.guests + ' гостей';
     postType.nextElementSibling.nextElementSibling.textContent = 'заезд после ' + post.offer.checkin + ' , выезд до ' + post.offer.checkout;
-    popupTemplate.querySelector('.popup__features').innerHTML = '';
+    popupTemplate.querySelector('.popup__features').textContent = '';
 
     for (var i = 0; i < post.offer.features.length; i++) {
       featureItem = document.createElement('li');

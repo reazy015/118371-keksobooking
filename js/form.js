@@ -19,19 +19,11 @@ window.formValidation = (function () {
   function checkCommonValidity(evt) {
     var input = evt.target;
 
-    if (input.validity.valueMissing) {
-      input.setCustomValidity('Обязательное поле для заполнения');
-    } else {
-      input.setCustomValidity('');
-    }
+    input.validity.valueMissing ? input.setCustomValidity('Обязательное поле для заполнения') : input.setCustomValidity('');
   }
 
   function toggleErrorInput(input, state) {
-    if (state) {
-      input.style.boxShadow = '0 0 5px 2px red';
-    } else {
-      input.style.boxShadow = '';
-    }
+    state ? input.style.boxShadow = '0 0 5px 2px red' : input.style.boxShadow = '';
   }
 
   function setMinimumPrice(element, value) {
@@ -102,9 +94,11 @@ window.formValidation = (function () {
       for (var i = 0; i < formInputs.length; i++) {
         if (formInputs[i].name === 'address' && formInputs[i].value === '') {
           toggleErrorInput(formInputs[i], true);
+        } else if (formInputs[i].name === 'address' && formInputs[i].value != null) {
+          window.backend.save(new FormData(form), successFormSend, messagePopup);
+          toggleErrorInput(formInputs[i], false);
         }
-      }
-      window.backend.save(new FormData(form), successFormSend, messagePopup);
+      }    
     });
 
     titleInput.addEventListener('invalid', checkValidity);
