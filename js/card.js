@@ -29,6 +29,7 @@ window.card = (function () {
     postType.nextElementSibling.nextElementSibling.textContent = 'заезд после ' + post.offer.checkin + ' , выезд до ' + post.offer.checkout;
     popupTemplate.querySelector('.popup__features').textContent = '';
 
+
     for (var i = 0; i < post.offer.features.length; i++) {
       featureItem = document.createElement('li');
       featureItem.className = 'feature  feature--' + post.offer.features[i];
