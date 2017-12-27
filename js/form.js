@@ -18,20 +18,13 @@ window.formValidation = (function () {
 
   function checkCommonValidity(evt) {
     var input = evt.target;
+    var inputValidityMeassage = input.validity.valueMissing ? 'Обязательное поле для заполнения' : '';
 
-    if (input.validity.valueMissing) {
-      input.setCustomValidity('Обязательное поле для заполнения');
-    } else {
-      input.setCustomValidity('');
-    }
+    input.setCustomValidity(inputValidityMeassage);
   }
 
   function toggleErrorInput(input, state) {
-    if (state) {
-      input.style.boxShadow = '0 0 5px 2px red';
-    } else {
-      input.style.boxShadow = '';
-    }
+    input.style.boxShadow = state ? '0 0 5px 2px red' : '';
   }
 
   function setMinimumPrice(element, value) {
@@ -41,26 +34,37 @@ window.formValidation = (function () {
   function successFormSend() {
     messagePopup('Данные успешно отправлены');
     form.reset();
+    window.photoDownload.avatarPreview.src = 'img/muffin.png';
+    window.photoDownload.photoContainer.querySelectorAll('img').forEach(function (image) {
+      image.remove();
+    });
   }
 
   function checkValidity(evt) {
     checkCommonValidity(evt);
     var input = evt.target;
+
     if (input.type === 'number') {
+      var rangeUnderflowErrorMessage = input.validity.rangeUnderflow ? 'Значение должно быть не менее ' + input.min : '';
+      var rangeOverflowErrorMessage = input.validity.rangeOverflow ? 'Значение должно быть не более ' + input.max : '';
+
       if (input.validity.rangeUnderflow) {
-        input.setCustomValidity('Значение должно быть не менее ' + input.min);
+        input.setCustomValidity(rangeUnderflowErrorMessage);
         input.value = input.min;
       } else if (input.validity.rangeOverflow) {
-        input.setCustomValidity('Значение должно быть не более ' + input.max);
+        input.setCustomValidity(rangeOverflowErrorMessage);
         input.value = input.max;
       }
     }
 
     if (input.type === 'text') {
+      var tooShortErrorMessage = input.validity.tooShort ? 'Поле должно быть не менее ' + input.minLength + ' символов' : '';
+      var tooLongErrorMessage = input.validity.tooLong ? 'Поле должео быть не более ' + input.maxLength + ' символов' : '';
+
       if (input.validity.tooShort) {
-        input.setCustomValidity('Поле должно быть не менее ' + input.minLength + ' символов');
+        input.setCustomValidity(tooShortErrorMessage);
       } else if (input.validity.tooLong) {
-        input.setCustomValidity('Поле должео быть не более ' + input.maxLength + ' символов');
+        input.setCustomValidity(tooLongErrorMessage);
       }
     }
   }
